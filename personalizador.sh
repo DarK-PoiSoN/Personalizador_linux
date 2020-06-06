@@ -56,7 +56,7 @@ then
 		1)	
 		tput civis
 		echo -e "\n\t${purpleColor}[*] Actualizando repositorios....${endColor}\n"	
-		apt update &> /dev/null
+		apt update -y &> /dev/null
 		tput cnorm
 		echo -e "\n\t${grayColor}Introduce nombre de usuario en el que configurar el escritorio${endColor}" 
 		read -p "$espacio" usuario
