@@ -64,7 +64,7 @@ Finalmente, te pedirá si quieres reiniciar el equipo
 ## Autor ✒️
 * **David Ojeda Guijarro**
 
-* Inspirado por [**s4vitar**](https://www.youtube.com/watch?v=MF4qRSedmEs)
+* Inspirado en [**s4vitar**](https://www.youtube.com/watch?v=MF4qRSedmEs)
 
 
 #### Construido en bash 🛠️
