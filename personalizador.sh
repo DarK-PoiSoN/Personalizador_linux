@@ -26,7 +26,7 @@ espacio=$(echo -e "\t")
 
 prompt=$(echo -e "\t${redColor}root@$(hostnamectl | head -n1 | xargs |cut -d' ' -f3) #${endColor}  ${grayColor}$0 ${endColor}")
 
-dependenciasBspwm=(bspwm compton feh rofi gnome-terminal caja git libxcb-xinerama0-dev libxcb-icccm4-dev libxcb-randr0-dev libxcb-util0-dev libxcb-ewmh-dev libxcb-keysyms1-dev libxcb-shape0-dev)
+dependenciasBspwm=(bspwm compton wmname feh rofi gnome-terminal caja git libxcb-xinerama0-dev libxcb-icccm4-dev libxcb-randr0-dev libxcb-util0-dev libxcb-ewmh-dev libxcb-keysyms1-dev libxcb-shape0-dev)
 
 dependenciasPolybar=(libxcb-xkb-dev libxcb-xrm-dev libxcb-cursor-dev libasound2-dev libpulse-dev i3-wm libjsoncpp-dev libmpdclient-dev libcurl4-openssl-dev libnl-genl-3-dev build-essential cmake cmake-data pkg-config python3-sphinx libcairo2-dev libxcb1-dev libxcb-util0-dev libxcb-randr0-dev libxcb-composite0-dev python3-xcbgen xcb-proto libxcb-image0-dev libxcb-ewmh-dev libxcb-icccm4-dev)
 
