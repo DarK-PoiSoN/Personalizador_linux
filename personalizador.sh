@@ -152,6 +152,12 @@ then
 		make -j$(nproc) 2> /dev/null
 		make install &> /dev/null
 
+		#VERSIÓN 2 # Incluye personalización en el lanzador de aplicaciónes
+  		echo -e "\n\t${grayColor}Configurando lanzador....${yellowColor}"
+		mkdir /home/$usuario/.config/rofi &>/dev/null
+		git clone https://github.com/newmanls/rofi-themes-collection/  /home/$usuario/.local/share/rofi &>/dev/null
+		echo "@theme \"/home/$usuario/.local/share/rofi/themes/rounded-purple-dark.rasi\"" > /home/$usuario/.config/rofi/config.rasi
+
 		
 		echo -e "\n\t${grayColor}Configurando fuentes....${endColor}"
 		cp -r $rutaPrograma/fonts /usr/local/share/fonts
@@ -249,6 +255,8 @@ then
 			cp $rutaPrograma/zsh/.zshrc /root
 			cp $rutaPrograma/zsh/.p10k.zsh /root
 			usermod -s /usr/bin/zsh root &> /dev/null
+   			#CONFIGURAR TEMA LSD ROOT
+      			
 			echo -e "\n\t${greenColor}Completado....${endColor}\n"
 			tput cnorm
 			#Usuario distinto de root 
