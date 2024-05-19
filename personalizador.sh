@@ -236,7 +236,7 @@ then
 		#wget https://github.com/Peltoche/lsd/releases/download/0.17.0/lsd_0.17.0_amd64.deb &> /dev/null
 		#dpkg -i lsd_0.17.0_amd64.deb &> /dev/null
 		#rm lsd_0.17.0_amd64.deb &> /dev/null
-  		apt install lsd &> /dev/null
+  		apt install lsd -y &> /dev/null
 		echo -e "\t\t${blueColor}[*] ${grayColor}Comando ${redColor}cat${endColor}${endColor}${endColor}\n"
 		wget https://github.com/sharkdp/bat/releases/download/v0.13.0/bat_0.13.0_amd64.deb &> /dev/null
 		dpkg -i bat_0.13.0_amd64.deb &> /dev/null
