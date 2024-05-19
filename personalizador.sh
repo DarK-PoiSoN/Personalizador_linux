@@ -157,7 +157,7 @@ then
 		mkdir /home/$usuario/.config/rofi &>/dev/null
 		git clone https://github.com/newmanls/rofi-themes-collection/  /home/$usuario/.local/share/rofi &>/dev/null
 		echo "@theme \"/home/$usuario/.local/share/rofi/themes/rounded-purple-dark.rasi\"" > /home/$usuario/.config/rofi/config.rasi
-
+		
 		
 		echo -e "\n\t${grayColor}Configurando fuentes....${endColor}"
 		cp -r $rutaPrograma/fonts /usr/local/share/fonts
@@ -174,6 +174,7 @@ then
 		sleep 0.5
 		echo -e "\n\t${grayColor}Configurando ultimos ajustes${endColor}\n"
 		chown -hR $usuario:$usuario /home/$usuario/.config
+  		chown -hR $usuario:$usuario /home/$usuario/.local
 		chown -hR $usuario:$usuario /home/$usuario/bspwm
 		chown -hR $usuario:$usuario /home/$usuario/sxhkd
 		tput cnorm
@@ -256,7 +257,7 @@ then
 			cp $rutaPrograma/zsh/.p10k.zsh /root
 			usermod -s /usr/bin/zsh root &> /dev/null
    			#CONFIGURAR TEMA LSD ROOT
-      			
+      			cp -rf $rutaPrograma/lsd /root/.config &>/dev/null
 			echo -e "\n\t${greenColor}Completado....${endColor}\n"
 			tput cnorm
 			#Usuario distinto de root 
@@ -269,6 +270,9 @@ then
 			cp $rutaPrograma/zsh/.zshrc /home/$usuario/
 			cp $rutaPrograma/zsh/.p10k.zsh /home/$usuario/
 			usermod -s /usr/bin/zsh $usuario &> /dev/null
+   			#CONFIGURAR TEMA LSD USER
+      			cp -rf $rutaPrograma/lsd /home/$usuario/.config &>/dev/null
+	 		chown -hR $usuario:$usuario /home/$usuario/.config/lsd
 			echo -e "\n\t${greenColor}Completado....${endColor}\n"
 			tput cnorm
 		else 
@@ -284,6 +288,9 @@ then
 				cp $rutaPrograma/zsh/.zshrc /home/$usuario/
 				cp $rutaPrograma/zsh/.p10k.zsh /home/$usuario/
 				usermod -s /usr/bin/zsh $usuario &> /dev/null
+    				#CONFIGURAR TEMA LSD USER
+      				cp -rf $rutaPrograma/lsd /home/$usuario/.config &>/dev/null
+	 			chown -hR $usuario:$usuario /home/$usuario/.config/lsd
 				echo -e "\n\t${greenColor}Completado....${endColor}\n"
 				tput cnorm
 				
@@ -294,6 +301,9 @@ then
 				cp $rutaPrograma/zsh/.zshrc /root
 				cp $rutaPrograma/zsh/.p10k.zsh /root
 				usermod -s /usr/bin/zsh root &> /dev/null
+				#CONFIGURAR TEMA LSD ROOT
+      				cp -rf $rutaPrograma/lsd /root/.config &>/dev/null
+    
 				
 				cd /home/$usuario
 				git clone https://github.com/romkatv/powerlevel10k &> /dev/null
@@ -301,6 +311,9 @@ then
 				cp $rutaPrograma/zsh/.zshrc /home/$usuario/
 				cp $rutaPrograma/zsh/.p10k.zsh /home/$usuario/
 				usermod -s /usr/bin/zsh $usuario &> /dev/null
+    				#CONFIGURAR TEMA LSD USER
+      				cp -rf $rutaPrograma/lsd /home/$usuario/.config &>/dev/null
+	 			chown -hR $usuario:$usuario /home/$usuario/.config/lsd
 				echo -e "\n\t${greenColor}Completado....${endColor}\n"
 				tput cnorm
 
