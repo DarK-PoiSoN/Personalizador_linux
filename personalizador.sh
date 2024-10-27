@@ -175,8 +175,11 @@ then
 		echo -e "\n\t${grayColor}Configurando ultimos ajustes${endColor}\n"
 		chown -hR $usuario:$usuario /home/$usuario/.config
   		chown -hR $usuario:$usuario /home/$usuario/.local
-		chown -hR $usuario:$usuario /home/$usuario/bspwm
-		chown -hR $usuario:$usuario /home/$usuario/sxhkd
+    		#INSTALACIÓN COMPLETA
+		#chown -hR $usuario:$usuario /home/$usuario/bspwm
+		#chown -hR $usuario:$usuario /home/$usuario/sxhkd
+  		rm -rf /home/$usuario/bspwm &>/dev/null
+    		rm -rf /home/$usuario/sxhkd &>/dev/null
 		tput cnorm
 		echo -e "\n\t${greenColor}¿Desea reiniciar el equipo para guardar cambios?${endColor}${blueColor} (yes, no)${endColor}"
 		read -p "$espacio" reiniciar
