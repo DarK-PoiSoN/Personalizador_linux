@@ -123,5 +123,5 @@ super + shift + g
         google-chrome
 
 #CUstom Move resize
-alt + ctrl + {Left,Down,Up,Right}        
+alt + {Left,Down,Up,Right}        
 	/home/david/.config/bspwm/scripts/bspwm_resize {west,south,north,east}
