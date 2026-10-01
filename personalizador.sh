@@ -657,7 +657,7 @@ case $opcion in
 		pedirUsuario "¿En que usuario deseas aplicar esta configuración?" permitirRoot
 		tput civis
 		echo -e "\n\t${purpleColor}[*] ${endColor}${grayColor}Instalando ${endColor}${yellowColor}tmux${endColor}\n"
-		instalar tmux git
+		instalar tmux git xclip
 		if [[ ! -f "$homeUsuario/.tmux/.tmux.conf" ]]
 		then
 			rm -rf "$homeUsuario/.tmux" 2> /dev/null
@@ -667,7 +667,14 @@ case $opcion in
 		if [[ -f "$homeUsuario/.tmux/.tmux.conf" ]] && command -v tmux &> /dev/null
 		then
 			comoUsuario "$usuario" ln -s -f .tmux/.tmux.conf "$homeUsuario/.tmux.conf"
-			[[ -f "$homeUsuario/.tmux.conf.local" ]] || comoUsuario "$usuario" cp "$homeUsuario/.tmux/.tmux.conf.local" "$homeUsuario/"
+			# Tema propio a juego con el escritorio; si había una configuración se guarda una copia
+			if [[ -f "$homeUsuario/.tmux.conf.local" ]] && ! cmp -s "$rutaPrograma/tmux/.tmux.conf.local" "$homeUsuario/.tmux.conf.local"
+			then
+				cp -f "$homeUsuario/.tmux.conf.local" "$homeUsuario/.tmux.conf.local.bak"
+				chown "$usuario:$(id -gn "$usuario")" "$homeUsuario/.tmux.conf.local.bak"
+			fi
+			cp -f "$rutaPrograma/tmux/.tmux.conf.local" "$homeUsuario/.tmux.conf.local"
+			chown "$usuario:$(id -gn "$usuario")" "$homeUsuario/.tmux.conf.local"
 			echo -e "\n\t${greenColor}[*] Tmux fue instalado y configurado con exito! ${endColor}\n"
 		else
 			echo -e "\n\t${redColor}[*] No se pudo instalar oh my tmux (¿hay conexión a internet?). Detalles en ${endColor}${grayColor}$registro${endColor}\n"

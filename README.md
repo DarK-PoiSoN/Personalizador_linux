@@ -45,7 +45,7 @@ Puedes elegir entre tres estilos:
 
 **4)** Mejora la personalización del grub con el tema TELA
 
-**5)** Instala y configura oh my tmux
+**5)** Instala y configura oh my tmux con un tema a juego con el escritorio (fondo oscuro, acento morado y separadores powerline), ratón activado y copia al portapapeles del sistema
 
 **6)** Sale del script, si no pones una de las anteriores opciones, también sale
 
