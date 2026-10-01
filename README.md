@@ -7,9 +7,9 @@ Este entorno de escritorio es el que uso en el dia dia.
 
 ## Comenzando 🚀
 
-Descargue y ejecute el script en bash con el siguiente comando (si no eres root, el propio script pide la contraseña de sudo):
+Descargue y ejecute el script en bash como root con el siguiente comando:
 ```
-bash personalizador.sh
+sudo bash personalizador.sh
 ```
 <p align="left">
 <img src="images-readme/inicio.JPG"
@@ -42,6 +42,8 @@ Puedes elegir entre tres estilos:
 ~
 ❯
 ```
+
+Cada vez que se instala o se cambia de estilo se aplica también el perfil de gnome-terminal del repositorio (`zsh/gnome-terminal-config.ini`: fuente, colores y transparencia).
 
 **4)** Mejora la personalización del grub con el tema TELA
 

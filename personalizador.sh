@@ -21,14 +21,10 @@ function ctrl_c() {
 	exit 1
 }
 
-# El programa necesita root: si no lo somos, se relanza con sudo
+# El programa solo se puede ejecutar como root
 if [ "$(id -u)" != "0" ]
 then
-	if command -v sudo &> /dev/null
-	then
-		exec sudo bash "$0" "$@"
-	fi
-	echo -e "\n${redColor}[*] Ejecuta este programa como root${endColor}\n"
+	echo -e "\n${redColor}[*] Ejecuta este programa como root${endColor} ${grayColor}(sudo bash $0)${endColor}\n"
 	exit 1
 fi
 
@@ -51,7 +47,7 @@ dependenciasOpcionales=(gnome-terminal caja i3lock wireless-tools papirus-icon-t
 # Solo se usan si polybar no esta en los repositorios y hay que compilarla
 dependenciasPolybar=(build-essential cmake cmake-data pkg-config python3-sphinx python3-packaging libuv1-dev libcairo2-dev libxcb1-dev libxcb-util0-dev libxcb-randr0-dev libxcb-composite0-dev python3-xcbgen xcb-proto libxcb-image0-dev libxcb-ewmh-dev libxcb-icccm4-dev libxcb-xkb-dev libxcb-xrm-dev libxcb-cursor-dev libasound2-dev libpulse-dev libjsoncpp-dev libmpdclient-dev libcurl4-openssl-dev libnl-genl-3-dev)
 
-dependenciasZsh=(zsh zsh-autosuggestions zsh-syntax-highlighting lsd bat fzf zoxide xclip scrub git)
+dependenciasZsh=(zsh zsh-autosuggestions zsh-syntax-highlighting lsd bat fzf zoxide xclip scrub git dconf-cli dbus-x11)
 
 fallos=()
 
@@ -91,7 +87,8 @@ function actualizarRepositorios(){
 
 # esAfirmativo (respuesta) -> acepta yes, y, si, sí, s (en mayúsculas o minúsculas)
 function esAfirmativo(){
-	case "${1,,}" in
+	local respuesta="${1//[[:space:]]/}"
+	case "${respuesta,,}" in
 		yes|y|si|sí|s) return 0 ;;
 		*) return 1 ;;
 	esac
@@ -236,6 +233,43 @@ function instalarHerramientasVM(){
 	esac
 }
 
+# Carga en gnome-terminal el perfil del repositorio (fuente, colores y
+# transparencia). Se aplica cada vez que un usuario cambia de shell
+function aplicarPerfilTerminal(){
+	local quien="$1" bus lanzador perfil actual lista
+	local config="$rutaPrograma/zsh/gnome-terminal-config.ini"
+	[[ -f "$config" ]] || return 0
+	command -v dconf &> /dev/null || return 0
+	bus="/run/user/$(id -u "$quien")/bus"
+	if [[ -S "$bus" ]]
+	then
+		lanzador=(env "DBUS_SESSION_BUS_ADDRESS=unix:path=$bus")
+	elif command -v dbus-run-session &> /dev/null
+	then
+		lanzador=(dbus-run-session --)
+	else
+		return 0
+	fi
+	if ! comoUsuario "$quien" "${lanzador[@]}" dconf load /org/gnome/terminal/ < "$config" >> "$registro" 2>&1
+	then
+		echo -e "\n\t${yellowColor}[!] No se pudo aplicar el perfil de gnome-terminal a $quien${endColor}"
+		return 1
+	fi
+	# Si el usuario usaba otro perfil por defecto, se pasa al que acabamos de cargar
+	perfil=$(grep -oP '^\[legacy/profiles:/:\K[0-9a-f-]+' "$config" | head -n 1)
+	actual=$(comoUsuario "$quien" "${lanzador[@]}" dconf read /org/gnome/terminal/legacy/profiles:/default 2>> "$registro" | tr -d "'")
+	if [[ -n "$perfil" && -n "$actual" && "$actual" != "$perfil" ]]
+	then
+		lista=$(comoUsuario "$quien" "${lanzador[@]}" dconf read /org/gnome/terminal/legacy/profiles:/list 2>> "$registro")
+		if [[ "$lista" == \[*\] && "$lista" != *"$perfil"* ]]
+		then
+			comoUsuario "$quien" "${lanzador[@]}" dconf write /org/gnome/terminal/legacy/profiles:/list "${lista%]}, '$perfil']" >> "$registro" 2>&1
+		fi
+		comoUsuario "$quien" "${lanzador[@]}" dconf write /org/gnome/terminal/legacy/profiles:/default "'$perfil'" >> "$registro" 2>&1
+	fi
+	return 0
+}
+
 function compilarPolybar(){
 	echo -e "\n\t${yellowColor}[!] polybar no está en los repositorios, se compilará desde el código fuente${endColor}\n"
 	instalar "${dependenciasPolybar[@]}"
@@ -326,10 +360,7 @@ function configurarZsh(){
 		fallos+=("shell de inicio ($quien)")
 		return 1
 	fi
-	if [[ "$quien" != "root" ]]
-	then
-		configurarTerminal "$quien"
-	fi
+	aplicarPerfilTerminal "$quien"
 	echo -e "\n\t${greenColor}Shell zsh configurada en ${endColor}${grayColor}$quien${endColor} ${greenColor}✔${endColor}"
 	return 0
 }
@@ -348,7 +379,12 @@ function preguntarReinicio(){
 	read -r -p "$espacio" reiniciar
 	if esAfirmativo "$reiniciar"
 	then
-		systemctl reboot
+		echo -e "\n\t${purpleColor}[*] Reiniciando....${endColor}\n"
+		sync
+		# -i: reinicia aunque haya otras sesiones abiertas o bloqueos de apagado
+		systemctl reboot -i >> "$registro" 2>&1 || shutdown -r now >> "$registro" 2>&1 || reboot -f
+		sleep 15
+		echo -e "\n\t${redColor}[*] No se pudo reiniciar automáticamente, reinicia el equipo a mano${endColor}\n"
 	else
 		echo
 	fi
@@ -549,7 +585,8 @@ case $opcion in
 		echo -e "\t    ${purpleColor}3)${endColor}  ${grayColor}Minimal${endColor}       ${blueColor}~${endColor} ${purpleColor}❯${endColor}\n"
 		while true
 		do
-			read -r -p "$espacio" estilo || exit 1
+			read -r -p "$prompt" estilo || exit 1
+			estilo=${estilo//[[:space:]]/}
 			estilo=${estilo:-1}
 			[[ "$estilo" == [123] ]] && break
 			echo -e "\n\t${redColor}[*] Elige 1, 2 o 3${endColor}\n"
