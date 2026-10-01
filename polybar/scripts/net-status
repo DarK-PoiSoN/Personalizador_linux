@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Muestra la interfaz principal y su IP. Se recalcula en cada llamada, asi que
+# sigue funcionando si cambia la interfaz (cable, wifi, otro equipo...)
+
+virtual='^(lo|tun|tap|wg|ppp|docker|br-|veth|virbr|vmnet)'
+
+# La de la ruta por defecto (sin contar VPNs ni puentes virtuales)
+iface=$(ip -4 route show default 2>/dev/null | grep -oP 'dev \K\S+' | grep -vE "$virtual" | head -n 1)
+# Sin ruta por defecto: la primera interfaz fisica levantada, o la primera que exista
+[ -z "$iface" ] && iface=$(ip -o link show up 2>/dev/null | awk -F': ' '{print $2}' | cut -d@ -f1 | grep -vE "$virtual" | head -n 1)
+[ -z "$iface" ] && iface=$(ls /sys/class/net 2>/dev/null | grep -vE "$virtual" | head -n 1)
+
+ip=$(ip -4 -o addr show dev "$iface" scope global 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n 1)
+
+if [ -z "$ip" ]; then
+	echo "%{F#757575} ${iface:-red} sin conexión%{F-}"
+elif [ -d "/sys/class/net/$iface/wireless" ]; then
+	essid=$(iwgetid -r "$iface" 2>/dev/null)
+	echo "%{F#43a047}%{F-} ${essid:-$iface} $ip"
+else
+	echo "%{F#43a047}%{F-} $iface $ip"
+fi

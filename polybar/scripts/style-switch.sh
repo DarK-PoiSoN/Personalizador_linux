@@ -5,7 +5,7 @@
 
 SDIR="$HOME/.config/polybar/scripts"
 
-MENU="$(rofi -sep "|" -dmenu -i -p 'Select' -location 3 -columns 1 -xoffset -270 -yoffset 36 -width 10 -hide-scrollbar -line-padding 4 -padding 20 -lines 4 <<< "> Feather|> Material|> Siji|> Typicons")"
+MENU="$(rofi -sep "|" -dmenu -i -p 'Select' -theme-str 'window { location: north east; anchor: north east; x-offset: -270px; y-offset: 36px; width: 10%; } listview { lines: 4; }' <<< "> Feather|> Material|> Siji|> Typicons")"
             case "$MENU" in
 				## Light Colors
 				*Feather) $SDIR/style.sh -Feather ;;

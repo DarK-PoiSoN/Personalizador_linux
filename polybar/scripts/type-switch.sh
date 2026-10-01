@@ -5,7 +5,7 @@
 
 SDIR="$HOME/.config/polybar/scripts"
 
-MENU="$(rofi -sep "|" -dmenu -i -p 'Select' -location 3 -columns 1 -xoffset -10 -yoffset 35 -width 10 -hide-scrollbar -line-padding 4 -padding 20 -lines 6 <<< "♥ Type-1|♥ Type-2|♥ Type-3|♥ Type-4|♥ Type-5|♥ Type-6")"
+MENU="$(rofi -sep "|" -dmenu -i -p 'Select' -theme-str 'window { location: north east; anchor: north east; x-offset: -10px; y-offset: 35px; width: 10%; } listview { lines: 6; }' <<< "♥ Type-1|♥ Type-2|♥ Type-3|♥ Type-4|♥ Type-5|♥ Type-6")"
             case "$MENU" in
 				## Light Colors
 				*Type-1) $SDIR/type.sh -type-1 ;;

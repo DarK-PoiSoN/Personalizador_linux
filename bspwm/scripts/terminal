@@ -1,0 +1,6 @@
+#!/bin/sh
+# Abre el primer emulador de terminal disponible
+
+for term in gnome-terminal kitty qterminal mate-terminal xfce4-terminal konsole x-terminal-emulator xterm; do
+	command -v "$term" > /dev/null && exec "$term" "$@"
+done

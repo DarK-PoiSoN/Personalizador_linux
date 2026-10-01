@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Muestra la IP de la VPN (primera interfaz tun/tap/wg con direccion)
+
+for iface in $(ls /sys/class/net 2>/dev/null | grep -E '^(tun|tap|wg)'); do
+	ip=$(ip -4 -o addr show dev "$iface" 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n 1)
+	if [ -n "$ip" ]; then
+		echo "%{F#43a047}%{F-} $iface $ip"
+		exit 0
+	fi
+done
+
+echo "%{F#757575} VPN%{F-}"

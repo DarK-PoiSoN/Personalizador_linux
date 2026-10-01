@@ -1,0 +1,90 @@
+/* Tema de rofi a juego con la polybar */
+
+* {
+	bg:      #0a0a0aee;
+	bg-alt:  #1f1f1fff;
+	fg:      #f5f5f5ff;
+	fg-alt:  #757575ff;
+	accent:  #a277ffff;
+
+	font: "Iosevka Nerd Font 11";
+	background-color: transparent;
+	text-color: @fg;
+	margin: 0;
+	padding: 0;
+	spacing: 0;
+}
+
+window {
+	width: 34%;
+	background-color: @bg;
+	border: 2px;
+	border-color: @accent;
+	border-radius: 10px;
+}
+
+mainbox {
+	padding: 14px;
+	spacing: 12px;
+}
+
+inputbar {
+	background-color: @bg-alt;
+	border-radius: 8px;
+	padding: 10px 14px;
+	spacing: 10px;
+	children: [ prompt, entry ];
+}
+
+prompt {
+	text-color: @accent;
+}
+
+entry {
+	placeholder: "Buscar...";
+	placeholder-color: @fg-alt;
+}
+
+listview {
+	lines: 8;
+	columns: 1;
+	spacing: 4px;
+	fixed-height: false;
+	scrollbar: false;
+}
+
+element {
+	padding: 8px 14px;
+	spacing: 12px;
+	border-radius: 8px;
+}
+
+element normal.normal, element alternate.normal {
+	background-color: transparent;
+	text-color: @fg;
+}
+
+element selected.normal, element selected.active, element selected.urgent {
+	background-color: @accent;
+	text-color: #0a0a0aff;
+}
+
+element-icon {
+	size: 1.2em;
+	vertical-align: 0.5;
+}
+
+element-text {
+	text-color: inherit;
+	vertical-align: 0.5;
+}
+
+message, error-message {
+	padding: 10px 14px;
+	background-color: @bg-alt;
+	border-radius: 8px;
+}
+
+textbox {
+	text-color: @fg;
+}

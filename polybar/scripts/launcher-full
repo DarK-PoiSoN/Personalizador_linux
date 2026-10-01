@@ -1,5 +1,5 @@
 #!/bin/bash
 
-## Created By Aditya Shakya
+# Lanzador de aplicaciones a pantalla completa
 
-rofi -show run -fullscreen True -lines 5 -line-margin 5 -padding 300 -bw 0
+rofi -no-lazy-grab -show drun -terminal ~/.config/bspwm/scripts/terminal -theme-str 'window { fullscreen: true; } mainbox { padding: 12% 25%; }'

@@ -1,10 +1,10 @@
 # terminal emulator
 super + Return
-        gnome-terminal
+        ~/.config/bspwm/scripts/terminal
 
 # program launcher
 super + d
-        /home/david/.config/polybar/scripts/menu
+        ~/.config/polybar/scripts/menu
 #Para ello tenemos que instalar la utilidad rofi
 
 # make sxhkd reload its configuration files:
@@ -118,10 +118,10 @@ super + ctrl + {Left,Down,Up,Right}
         bspc node -v {-20 0,0 20,0 -20,20 0}
 #-----------------------------------------------------------------
 #Custom s4vitar
-#Google Crhome
+#Navegador
 super + shift + g
-        google-chrome
+        ~/.config/bspwm/scripts/browser
 
 #CUstom Move resize
 alt + {Left,Down,Up,Right}        
-	/home/david/.config/bspwm/scripts/bspwm_resize {west,south,north,east}
+	~/.config/bspwm/scripts/bspwm_resize {west,south,north,east}

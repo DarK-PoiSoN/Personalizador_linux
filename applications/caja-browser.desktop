@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Caja
+GenericName=File Manager
+GenericName[es]=Gestor de archivos
+Comment=Browse the file system with the file manager
+Comment[es]=Explorar el sistema de archivos
+Exec=caja --no-desktop --browser %U
+Icon=system-file-manager
+Terminal=false
+StartupNotify=true
+Categories=GTK;System;Utility;Core;FileManager;
+MimeType=inode/directory;

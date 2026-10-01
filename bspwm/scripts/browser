@@ -1,0 +1,6 @@
+#!/bin/sh
+# Abre el primer navegador disponible
+
+for browser in google-chrome firefox firefox-esr chromium x-www-browser; do
+	command -v "$browser" > /dev/null && exec "$browser" "$@"
+done

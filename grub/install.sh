@@ -58,7 +58,7 @@ if [ "$UID" -eq "$ROOT_UID" ]; then
   # Copy theme
   prompt -i "\nInstalling ${THEME_NAME} theme...\n"
 
-  cp -a ${THEME_NAME}/* ${THEME_DIR}/${THEME_NAME}
+  cp -a "$(dirname "$(readlink -f "$0")")/${THEME_NAME}"/* ${THEME_DIR}/${THEME_NAME}
 
   # Set theme
   prompt -i "\nSetting ${THEME_NAME} as default...\n"
@@ -69,6 +69,15 @@ if [ "$UID" -eq "$ROOT_UID" ]; then
   grep "GRUB_THEME=" /etc/default/grub 2>&1 >/dev/null && sed -i '/GRUB_THEME=/d' /etc/default/grub
 
   echo "GRUB_THEME=\"${THEME_DIR}/${THEME_NAME}/theme.txt\"" >> /etc/default/grub
+
+  # Kali y Parrot fijan su propio tema en /etc/default/grub.d/, que se carga
+  # despues de /etc/default/grub; este fichero se carga el ultimo y lo sustituye
+  if [[ -d /etc/default/grub.d ]]; then
+    {
+      echo "GRUB_THEME=\"${THEME_DIR}/${THEME_NAME}/theme.txt\""
+      echo "unset GRUB_BACKGROUND"
+    } > /etc/default/grub.d/zz-${THEME_NAME,,}-theme.cfg
+  fi
 
   # Update grub config
   echo -e "Updating grub config..."

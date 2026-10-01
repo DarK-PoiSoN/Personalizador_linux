@@ -1,0 +1,136 @@
+#!/usr/bin/env python3
+# Permite mover las ventanas flotantes arrastrandolas con el raton desde su
+# franja superior (la barra de menu), como si tuvieran barra de titulo.
+# Solo observa el puntero, no captura clics: los menus siguen funcionando.
+#
+# Ademas limpia un fallo de VMware: si se arrastra un archivo desde el
+# anfitrion y se suelta fuera de una ventana que lo acepte, vmware-user deja
+# una ventanita invisible en la esquina superior izquierda que tapa la polybar.
+
+import ctypes
+import ctypes.util
+import json
+import subprocess
+import time
+
+FRANJA = 30    # alto en pixeles de la zona de arrastre
+UMBRAL = 6     # pixeles que hay que mover antes de empezar a arrastrar
+BOTON1 = 1 << 8
+
+x11 = ctypes.CDLL(ctypes.util.find_library('X11'))
+x11.XOpenDisplay.restype = ctypes.c_void_p
+display = ctypes.c_void_p(x11.XOpenDisplay(None))
+if not display:
+    raise SystemExit('no se pudo abrir la pantalla')
+raiz = x11.XDefaultRootWindow(display)
+
+
+class Atributos(ctypes.Structure):
+    _fields_ = [('x', ctypes.c_int), ('y', ctypes.c_int), ('width', ctypes.c_int), ('height', ctypes.c_int),
+                ('border_width', ctypes.c_int), ('depth', ctypes.c_int), ('visual', ctypes.c_void_p),
+                ('root', ctypes.c_ulong), ('clase', ctypes.c_int), ('bit_gravity', ctypes.c_int),
+                ('win_gravity', ctypes.c_int), ('backing_store', ctypes.c_int),
+                ('backing_planes', ctypes.c_ulong), ('backing_pixel', ctypes.c_ulong),
+                ('save_under', ctypes.c_int), ('colormap', ctypes.c_ulong), ('map_installed', ctypes.c_int),
+                ('map_state', ctypes.c_int), ('all_event_masks', ctypes.c_long),
+                ('your_event_mask', ctypes.c_long), ('do_not_propagate_mask', ctypes.c_long),
+                ('override_redirect', ctypes.c_int), ('screen', ctypes.c_void_p)]
+
+
+# Una ventana puede desaparecer mientras se consulta: ese error de X se ignora
+MANEJADOR = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(lambda d, e: 0)
+x11.XSetErrorHandler(MANEJADOR)
+x11.XFree.argtypes = [ctypes.c_void_p]
+
+
+def restos_vmware():
+    """Ventanas de arrastre de vmware-user que siguen visibles en la esquina."""
+    r, p = ctypes.c_ulong(), ctypes.c_ulong()
+    hijos, n = ctypes.POINTER(ctypes.c_ulong)(), ctypes.c_uint()
+    if not x11.XQueryTree(display, ctypes.c_ulong(raiz), ctypes.byref(r), ctypes.byref(p),
+                          ctypes.byref(hijos), ctypes.byref(n)):
+        return []
+    restos = []
+    for i in range(n.value):
+        ventana = ctypes.c_ulong(hijos[i])
+        nombre = ctypes.c_char_p()
+        if not x11.XFetchName(display, ventana, ctypes.byref(nombre)) or not nombre.value:
+            continue
+        es_vmware = nombre.value == b'vmware-user'
+        x11.XFree(nombre)
+        if not es_vmware:
+            continue
+        a = Atributos()
+        if (x11.XGetWindowAttributes(display, ventana, ctypes.byref(a)) and a.map_state == 2
+                and a.x == 0 and a.y == 0 and 1 < a.width <= 64 and 1 < a.height <= 64):
+            restos.append(hijos[i])
+    if n.value:
+        x11.XFree(hijos)
+    return restos
+
+
+def puntero():
+    r, c = ctypes.c_ulong(), ctypes.c_ulong()
+    rx, ry, wx, wy = ctypes.c_int(), ctypes.c_int(), ctypes.c_int(), ctypes.c_int()
+    mascara = ctypes.c_uint()
+    x11.XQueryPointer(display, raiz, ctypes.byref(r), ctypes.byref(c), ctypes.byref(rx),
+                      ctypes.byref(ry), ctypes.byref(wx), ctypes.byref(wy), ctypes.byref(mascara))
+    return rx.value, ry.value, bool(mascara.value & BOTON1)
+
+
+def bspc(*args):
+    return subprocess.run(('bspc',) + args, capture_output=True, text=True).stdout.strip()
+
+
+def rectangulo(nodo):
+    try:
+        return json.loads(bspc('query', '-T', '-n', nodo))['client']['floatingRectangle']
+    except (ValueError, KeyError, TypeError):
+        return None
+
+
+pulsado = False
+ciclos = 0
+sospechosas = set()
+while True:
+    x, y, boton = puntero()
+    ciclos += 1
+    if ciclos >= 8:
+        # Cuatro veces por segundo: una ventana de arrastre de VMware que sigue en
+        # la esquina dos revisiones seguidas sin ningun boton pulsado es un resto
+        ciclos = 0
+        if boton:
+            sospechosas = set()
+        else:
+            restos = set(restos_vmware())
+            for ventana in restos & sospechosas:
+                x11.XUnmapWindow(display, ctypes.c_ulong(ventana))
+            x11.XFlush(display)
+            sospechosas = restos - sospechosas
+    if boton and not pulsado:
+        nodo = bspc('query', '-N', '-n', 'pointed.floating.window')
+        rect = rectangulo(nodo) if nodo else None
+        if rect and rect['y'] <= y <= rect['y'] + FRANJA:
+            x0, y0 = x, y
+            arrastrando = False
+            while True:
+                time.sleep(0.01)
+                nx, ny, boton = puntero()
+                if not boton:
+                    break
+                if not arrastrando:
+                    if abs(nx - x0) < UMBRAL and abs(ny - y0) < UMBRAL:
+                        continue
+                    # Algunas aplicaciones ya se mueven solas desde su barra de menu
+                    actual = rectangulo(nodo)
+                    if not actual or (actual['x'], actual['y']) != (rect['x'], rect['y']):
+                        break
+                    arrastrando = True
+                if (nx, ny) != (x0, y0):
+                    bspc('node', nodo, '-v', str(nx - x0), str(ny - y0))
+                    x0, y0 = nx, ny
+            while puntero()[2]:
+                time.sleep(0.02)
+            boton = False
+    pulsado = boton
+    time.sleep(0.03)
