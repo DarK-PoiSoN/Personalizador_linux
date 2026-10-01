@@ -7,7 +7,7 @@ Este entorno de escritorio es el que uso en el dia dia.
 
 ## Comenzando 🚀
 
-Descargue y ejecute el sript en bash con el siguiente comando (si no eres root, el propio script pide la contraseña de sudo):
+Descargue y ejecute el script en bash con el siguiente comando (si no eres root, el propio script pide la contraseña de sudo):
 ```
 bash personalizador.sh
 ```
