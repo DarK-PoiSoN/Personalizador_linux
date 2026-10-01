@@ -144,7 +144,9 @@ function fzf-show(){
 	fi
 }
 
-[[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
+if [[ -f "$HOME/.local/bin/env" ]]; then
+	. "$HOME/.local/bin/env"
+fi
 
 # Shell integrations (despues de fijar el PATH; fzf --zsh necesita fzf 0.48 o superior)
 (( $+commands[fzf] )) && source <(fzf --zsh 2> /dev/null)
